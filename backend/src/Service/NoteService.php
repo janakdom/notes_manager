@@ -59,6 +59,23 @@ final class NoteService
     }
 
     /**
+     * Update an existing note
+     *
+     * @param Note $note
+     * @param NoteRequestDto $noteDto
+     * @return Note
+     */
+    public function update(Note $note, NoteRequestDto $noteDto): Note
+    {
+        $this->assignDtoToEntity($noteDto, $note);
+
+        $this->entityManager->persist($note);
+        $this->entityManager->flush();
+
+        return $note;
+    }
+
+    /**
      * Assign data from DTO to an entity
      *
      * @param NoteRequestDto $sourceDto

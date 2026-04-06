@@ -57,7 +57,6 @@ final class NotesController extends AbstractController
 
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(
-        Request $request,
         #[MapRequestPayload(acceptFormat: 'json', validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         NoteRequestDto $noteRequestDto
     ): JsonResponse
@@ -67,9 +66,24 @@ final class NotesController extends AbstractController
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
-    public function update(Request $request, int $id): JsonResponse
+    public function update(
+        int $id,
+        #[MapRequestPayload(acceptFormat: 'json', validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        NoteRequestDto $noteRequestDto
+    ): JsonResponse
     {
-        return $this->json([]);
+        $note = $this->noteService->findOne($id);
+
+        if ($note === null) {
+            return $this->json([
+                'code' => 'note_not_found',
+                'message' => 'Poznámka nebyla nalezena',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $updatedNote = $this->noteService->update($note, $noteRequestDto);
+
+        return $this->json($updatedNote);
     }
 }
 
