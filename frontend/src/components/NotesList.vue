@@ -9,6 +9,10 @@ interface Props {
 }
 
 defineProps<Props>()
+
+const emit = defineEmits<{
+	edit: [note: Note]
+}>()
 </script>
 
 <template>
@@ -38,7 +42,7 @@ defineProps<Props>()
 				v-for="note in notes"
 				:key="note.id"
 			>
-				<NoteCard :note="note" />
+				<NoteCard :note="note" @edit="emit('edit', note)" />
 			</li>
 		</ul>
 	</section>

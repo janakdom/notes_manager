@@ -42,7 +42,6 @@ const options: FilterOption[] = [
 	.filter {
 		display: flex;
 		gap: 8px;
-		margin-bottom: 24px;
 	}
 
 	.filter-btn {

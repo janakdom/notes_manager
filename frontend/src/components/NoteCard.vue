@@ -7,6 +7,10 @@ interface Props {
 
 defineProps<Props>()
 
+const emit = defineEmits<{
+	edit: [note: Note]
+}>()
+
 const priorityLabels: Record<Note['priority'], string> = {
 	low: 'Nízká',
 	medium: 'Střední',
@@ -28,6 +32,10 @@ const priorityLabels: Record<Note['priority'], string> = {
 		<p class="note-content">
 			{{ note.content }}
 		</p>
+
+		<button class="note-edit-btn" @click="emit('edit', note)">
+			Upravit
+		</button>
 	</article>
 </template>
 
@@ -69,6 +77,17 @@ const priorityLabels: Record<Note['priority'], string> = {
 		margin: 0;
 		line-height: 1.5;
 		white-space: pre-wrap;
+	}
+
+	.note-edit-btn {
+		margin-top: 12px;
+		padding: 4px 14px;
+		border: 1px solid #d8dee8;
+		border-radius: 8px;
+		background: #f8fafc;
+		color: #334155;
+		font-size: 0.8rem;
+		cursor: pointer;
 	}
 
 	@media (max-width: 640px) {
