@@ -1,0 +1,83 @@
+# Development stack
+# All configurable values come from .env (see .env.example)
+###############################################################################
+
+services:
+  # Frontend – Vue.js 3 / Vite dev server
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}-frontend
+    working_dir: /app
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ../frontend:/app
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Backend – Symfony 8.0 / PHP 8.4 built-in server
+  # App reads its own .env / .env.local from the mounted volume.
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../docker/backend/Dockerfile
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
+    container_name: ${COMPOSE_PROJECT_NAME}-backend
+    working_dir: /app
+    user: app
+    command: ["php", "-S", "0.0.0.0:8880", "-t", "public"]
+    ports:
+      - "${BACKEND_PORT:-8880}:8880"
+    volumes:
+      - ../backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Database – MariaDB 11.8
+  db:
+    image: mariadb:11.8
+    container_name: ${COMPOSE_PROJECT_NAME}-db
+    ports:
+      - "${DB_PORT:-3307}:3306"
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-notes}
+      MARIADB_USER: ${DB_USER:-app}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-app}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u$$MARIADB_USER -p$$MARIADB_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    container_name: ${COMPOSE_PROJECT_NAME}-phpmyadmin
+    ports:
+      - "${PMA_PORT:-8881}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USER:-app}
+      PMA_PASSWORD: ${DB_PASSWORD:-app}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db_data:
