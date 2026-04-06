@@ -37,7 +37,6 @@ setup: ## Full first-time project setup
 
 .PHONY: init-env
 init-env: ## Copy .env.example → .env / .env.local (no overwrite)
-	@cp -n $(ROOT_DIR)/docker/.env.example $(ROOT_DIR)/docker/.env 2>/dev/null || true
 	@cp -n $(ROOT_DIR)/backend/.env.example $(ROOT_DIR)/backend/.env 2>/dev/null || true
 	@cp -n $(ROOT_DIR)/frontend/.env.example $(ROOT_DIR)/frontend/.env.local 2>/dev/null || true
 	@echo "Environment files ready."
