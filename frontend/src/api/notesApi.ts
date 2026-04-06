@@ -1,4 +1,4 @@
-export type { Note, NotePriority } from '../types/note'
+import type { NotePriority, Note } from '../types/note'
 
 interface ApiErrorResponse {
 	message?: string
@@ -9,15 +9,15 @@ interface ApiErrorResponse {
  */
 function buildNotesUrl(): string {
 	const baseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
-    return `${baseUrl.replace(/\/$/, '')}/api/notes`
+	return `${baseUrl.replace(/\/$/, '')}/api/notes`
 }
 
 
 /**
  * Fetches notes from the API.
  */
-export async function fetchNotes(): Promise<Note[]> {
-	const response = await fetch(buildNotesUrl(), {
+export async function fetchNotes(priority?: NotePriority): Promise<Note[]> {
+	const response = await fetch(buildNotesUrl() + (priority ? `?priority=${priority}` : ''), {
 		headers: {
 			Accept: 'application/json',
 		},

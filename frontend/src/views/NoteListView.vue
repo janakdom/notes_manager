@@ -3,9 +3,10 @@
 
     import BasicLayout from "../layouts/BasicLayout.vue";
     import NotesList from "../components/NotesList.vue";
+    import NotesFilter from "../components/NotesFilter.vue";
     import { useNotes } from '../composables/useNotes'
 
-    const { notes, isLoading, errorMessage, loadNotes } = useNotes()
+    const { notes, isLoading, errorMessage, priorityFilter, loadNotes, setPriorityFilter } = useNotes()
 
     onMounted(() => {
         void loadNotes()
@@ -17,6 +18,10 @@
         title="Moje poznámky"
         description="Jednoduchý přehled všech poznámek."
     >
+        <NotesFilter
+            :model-value="priorityFilter"
+            @update:model-value="setPriorityFilter"
+        />
         <NotesList
             :notes="notes"
             :is-loading="isLoading"

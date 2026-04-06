@@ -1,11 +1,13 @@
 import { ref } from 'vue'
 
-import { fetchNotes, type Note } from '../api/notesApi'
+import { fetchNotes } from '../api/notesApi'
+import type {Note, NotePriority} from "../types/note.ts";
 
 export function useNotes() {
     const notes = ref<Note[]>([])
     const isLoading = ref(false)
     const errorMessage = ref('')
+    const priorityFilter = ref<NotePriority | null>(null)
 
     /**
      * Asynchronously loads notes by fetching them and updates the application state.
@@ -17,20 +19,31 @@ export function useNotes() {
         errorMessage.value = ''
 
         try {
-            notes.value = await fetchNotes()
+            notes.value = await fetchNotes(priorityFilter.value ?? undefined)
         } catch (error) {
             errorMessage.value = error instanceof Error
                 ? error.message
-                : 'Nepodarilo se nacist poznamky.'
+                : 'Nepodařilo se načíst poznámky.'
         } finally {
             isLoading.value = false
         }
+    }
+
+    /**
+     * Sets the priority filter and reloads the notes.
+     * @param priority
+     */
+    async function setPriorityFilter(priority: NotePriority | null): Promise<void> {
+        priorityFilter.value = priority
+        await loadNotes()
     }
 
     return {
         notes,
         isLoading,
         errorMessage,
+        priorityFilter,
         loadNotes,
+        setPriorityFilter,
     }
 }
