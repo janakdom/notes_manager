@@ -11,7 +11,8 @@ HOST_GID    := $(shell id -g 2>/dev/null || echo 1000)
 
 # Export UID/GID so compose can resolve ${HOST_UID}/${HOST_GID} from the shell
 # even when .env is not yet created (first-time setup).
-export HOST_UID HOST_GID
+export HOST_UID
+export HOST_GID
 
 ###############################################################################
 # HELP
