@@ -18,5 +18,5 @@ final class NoteRequestDto
         choices: ['low', 'medium', 'high'],
         message: 'Priorita musí být jedna z těchto hodnot: nízká, střední, vysoká.',
     )]
-    public string $priority = 'low';
+    public string $priority = '';
 }

@@ -30,7 +30,7 @@ final class NotesController extends AbstractController
             if(!$priority) {
                 return $this->json([
                     'code' => 'invalid_priority_filter',
-                    'message' => 'Invalid priority',
+                    'message' => 'Priorita musí být jedna z těchto hodnot: nízká, střední, vysoká',
                 ], Response::HTTP_BAD_REQUEST);
             }
         }
@@ -48,7 +48,7 @@ final class NotesController extends AbstractController
         if ($note === null) {
             return $this->json([
                 'code' => 'note_not_found',
-                'message' => 'Poznámka nebyla nalezena',
+                'message' => 'Poznámka nebyla nalezena.',
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -77,7 +77,7 @@ final class NotesController extends AbstractController
         if ($note === null) {
             return $this->json([
                 'code' => 'note_not_found',
-                'message' => 'Poznámka nebyla nalezena',
+                'message' => 'Poznámka nebyla nalezena.',
             ], Response::HTTP_NOT_FOUND);
         }
 

@@ -11,11 +11,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
-final class ExceptionSubscriber implements EventSubscriberInterface
+final readonly class ExceptionSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         #[Autowire('%kernel.debug%')]
-        private readonly bool $debug,
+        private bool $debug,
     ) {
     }
 
@@ -50,7 +50,7 @@ final class ExceptionSubscriber implements EventSubscriberInterface
 
             $event->setResponse(new JsonResponse([
                 'code' => 'invalid_request',
-                'message' => 'Požadavek nelze zpracovat.',
+                'message' => 'Neplatný požadavek.',
             ], Response::HTTP_BAD_REQUEST));
 
             return;
@@ -58,7 +58,7 @@ final class ExceptionSubscriber implements EventSubscriberInterface
 
         $response = [
             'code' => 'internal_error',
-            'message' => 'Vyskytla se neočekávaná chyba',
+            'message' => 'Vyskytla se neočekávaná chyba.',
         ];
 
         if ($this->debug) {

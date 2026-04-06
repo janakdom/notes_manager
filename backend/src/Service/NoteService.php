@@ -8,11 +8,11 @@ use App\Enum\NotePriority;
 use App\Repository\NoteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class NoteService
+final readonly class NoteService
 {
     public function __construct(
-        private readonly NoteRepository $noteRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private NoteRepository $noteRepository,
+        private EntityManagerInterface $entityManager,
     ) {}
 
     /**
@@ -23,11 +23,7 @@ final class NoteService
      */
     public function findAllByPriority(?NotePriority $priority): array
     {
-        if($priority === null ){
-            return $this->noteRepository->findAll();
-        }
-
-        return $this->noteRepository->findBy(['priority' => $priority]);
+        return $this->noteRepository->findAllByPriority($priority);
     }
 
     /**
@@ -82,10 +78,11 @@ final class NoteService
      * @param Note $targetEntity
      * @return void
      */
-    public function assignDtoToEntity(NoteRequestDto $sourceDto, Note $targetEntity): void
+    private function assignDtoToEntity(NoteRequestDto $sourceDto, Note $targetEntity): void
     {
         $targetEntity->setTitle($sourceDto->title);
         $targetEntity->setContent($sourceDto->content);
         $targetEntity->setPriority(NotePriority::from($sourceDto->priority));
+        $targetEntity->setUpdatedAt(new \DateTimeImmutable());
     }
 }
