@@ -21,20 +21,24 @@ export HOST_GID
 .PHONY: help
 help:
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"}'
-	@grep -h -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}'
-	@echo ""
+	@grep -h -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 ###############################################################################
 # SETUP
 ###############################################################################
 .PHONY: setup
-setup: init-env build deps-install ## Full first-time project setup
+setup: ## Full first-time project setup
+	$(MAKE) init-env
+	$(MAKE) build
+	$(MAKE) up-d
+	$(MAKE) deps-install
+	$(MAKE) db-create
+	$(MAKE) migrate
 
 .PHONY: init-env
 init-env: ## Copy .env.example → .env / .env.local (no overwrite)
-	@cp -n $(DOCKER_DIR)/.env.example $(DOCKER_DIR)/.env 2>/dev/null || true
-	@cp -n $(ROOT_DIR)/backend/.env.example $(ROOT_DIR)/backend/.env.local 2>/dev/null || true
+	@cp -n $(ROOT_DIR)/docker/.env.example $(ROOT_DIR)/docker/.env 2>/dev/null || true
+	@cp -n $(ROOT_DIR)/backend/.env.example $(ROOT_DIR)/backend/.env 2>/dev/null || true
 	@cp -n $(ROOT_DIR)/frontend/.env.example $(ROOT_DIR)/frontend/.env.local 2>/dev/null || true
 	@echo "Environment files ready."
 
@@ -118,11 +122,11 @@ console: ## Run Symfony console command (usage: make console CMD="cache:clear")
 
 .PHONY: db-create
 db-create: ## Create database if missing
-	$(COMPOSE) exec --user $(HOST_UID):$(HOST_GID) backend php bin/console doctrine:database:create --if-not-exists
+	$(COMPOSE) run --rm --user $(HOST_UID):$(HOST_GID) backend php bin/console doctrine:database:create --if-not-exists
 
 .PHONY: migrate
 migrate: ## Run Doctrine migrations
-	$(COMPOSE) exec --user $(HOST_UID):$(HOST_GID) backend php bin/console doctrine:migrations:migrate -n
+	$(COMPOSE) run --rm --user $(HOST_UID):$(HOST_GID) backend php bin/console doctrine:migrations:migrate -n
 
 ###############################################################################
 # FRONTEND
