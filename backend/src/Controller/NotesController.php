@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Dto\NoteRequestDto;
 use App\Enum\NotePriority;
 use App\Service\NoteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/notes', name: 'api_notes_', format: 'json')]
@@ -54,9 +56,14 @@ final class NotesController extends AbstractController
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(
+        Request $request,
+        #[MapRequestPayload(acceptFormat: 'json', validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        NoteRequestDto $noteRequestDto
+    ): JsonResponse
     {
-        return $this->json([]);
+        $note = $this->noteService->create($noteRequestDto);
+        return $this->json($note, Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
