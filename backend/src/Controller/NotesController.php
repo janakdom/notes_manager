@@ -7,6 +7,7 @@ use App\Service\NoteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/notes', name: 'api_notes_', format: 'json')]
@@ -28,7 +29,7 @@ final class NotesController extends AbstractController
                 return $this->json([
                     'code' => 'invalid_priority_filter',
                     'message' => 'Invalid priority',
-                ], 400);
+                ], Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -40,7 +41,16 @@ final class NotesController extends AbstractController
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
-        return $this->json([]);
+        $note = $this->noteService->findOne($id);
+
+        if ($note === null) {
+            return $this->json([
+                'code' => 'note_not_found',
+                'message' => 'Poznámka nebyla nalezena',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json($note);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
